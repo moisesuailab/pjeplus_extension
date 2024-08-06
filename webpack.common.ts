@@ -1,14 +1,17 @@
 import path from "path"
 import webpack from "webpack"
 import CopyWebpackPlugin from "copy-webpack-plugin"
+import fg from "fast-glob";
+
+// Use fast-glob to get all TypeScript files in the src directory
+const entries: { [key: string]: string } = fg.sync("./src/**/*.ts").reduce((acc: { [key: string]: string }, file: string) => {
+  const name = path.basename(file, path.extname(file));
+  acc[name] = file;
+  return acc;
+}, {});
 
 const config: webpack.Configuration = {
-  entry: {
-    background: "./src/background.ts",
-    content: "./src/content.ts",
-    popup: "./src/popup.ts",
-    options: "./src/options.ts",
-  },
+  entry: entries,
   resolve: {
     extensions: [".ts"],
   },
