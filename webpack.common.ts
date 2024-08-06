@@ -3,17 +3,20 @@ import webpack from "webpack"
 import CopyWebpackPlugin from "copy-webpack-plugin"
 import fg from "fast-glob";
 
-// Use fast-glob to get all TypeScript files in the src directory
-const entries: { [key: string]: string } = fg.sync("./src/**/*.ts").reduce((acc: { [key: string]: string }, file: string) => {
-  const name = path.basename(file, path.extname(file));
-  acc[name] = file;
+// Use fast-glob to get all TypeScript and JavaScript files in the src directory
+const entries: { [key: string]: string } = fg.sync("./src/**/*.{ts,tsx,js}").reduce((acc: { [key: string]: string }, file: string) => {
+  // Remove './src/' from the beginning of the path and get the rest
+  const relativePath = path.relative("./src", file);
+  // Remove the file extension and use the relative path as the key
+  const entryKey = relativePath.replace(/\.(ts|tsx|js)$/, '');
+  acc[entryKey] = file;
   return acc;
 }, {});
 
 const config: webpack.Configuration = {
   entry: entries,
   resolve: {
-    extensions: [".ts"],
+    extensions: [".ts", ".tsx", ".js"],
   },
   module: {
     rules: [
